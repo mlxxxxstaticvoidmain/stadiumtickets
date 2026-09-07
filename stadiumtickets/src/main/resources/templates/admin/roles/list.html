@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление ролями</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .filter { text-align: center; margin-bottom: 20px; }
+        .filter select { padding: 8px 16px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .alert-error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; font-weight: bold; color: #333; }
+        tr:hover { background: #f9f9f9; }
+        .role-badge { padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; color: white; }
+        .role-admin { background: #f44336; }
+        .role-manager { background: #ff9800; }
+        .role-user { background: #4CAF50; }
+        .btn { padding: 6px 16px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; display: inline-block; }
+        .btn-edit { background: #2196f3; color: white; }
+        .btn-edit:hover { background: #1976d2; }
+        .btn-back { background: #666; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 20px; }
+        .btn-back:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Управление ролями пользователей</h1>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="filter">
+            <form method="get" action="/admin/roles">
+                <label>Фильтр по роли:</label>
+                <select name="roleId" onchange="this.form.submit()">
+                    <option value="">Все роли</option>
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"
+                            th:selected="${selectedRoleId != null and selectedRoleId == role.id}"></option>
+                </select>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Логин</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Email</th>
+                    <th>Текущая роль</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="account : ${accounts}">
+                    <td th:text="${account.id}"></td>
+                    <td th:text="${account.username}"></td>
+                    <td th:text="${account.firstName}"></td>
+                    <td th:text="${account.lastName}"></td>
+                    <td th:text="${account.email}"></td>
+                    <td>
+                        <span class="role-badge"
+                              th:classappend="${account.roleName == 'Администратор'} ? 'role-admin' : (${account.roleName == 'Менеджер'} ? 'role-manager' : 'role-user')"
+                              th:text="${account.roleName}"></span>
+                    </td>
+                    <td>
+                        <a th:href="'/admin/roles/' + ${account.id} + '/edit'" class="btn btn-edit">Изменить роль</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(accounts)}">
+                    <td colspan="7" style="text-align: center; color: #999;">Пользователи не найдены</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="/admin" class="btn-back">← Назад в админ панель</a>
+    </div>
+</body>
+</html>

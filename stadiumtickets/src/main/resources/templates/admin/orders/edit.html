@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать заказ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #555;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 3px solid #e65100;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Редактирование заказа</h1>
+            <p>Измените информацию о заказе</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <strong>ID заказа:</strong> <span th:text="${order.id}"></span>
+                <br>
+                <strong>Дата создания:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span>
+            </div>
+            
+            <!-- Отображение ошибок из контроллера -->
+            <div th:if="${error}" class="alert-warning" th:text="${error}"></div>
+            
+            <form action="/admin/orders/edit" method="post">
+                <input type="hidden" name="id" th:value="${order.id}">
+                <input type="hidden" name="orderDate" th:value="${order.orderDate}">
+                
+                <div class="form-group">
+                    <label for="accountId">Пользователь *</label>
+                    <select id="accountId" name="accountId" required>
+                        <option th:each="account : ${accounts}" 
+                                th:value="${account.id}" 
+                                th:text="${account.firstName} + ' ' + ${account.lastName} + ' (' + ${account.username} + ')'"
+                                th:selected="${account.id == (order.account != null ? order.account.getId() : -1)}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketId">Билет *</label>
+                    <select id="ticketId" name="ticketId" required>
+                        <option th:each="ticket : ${tickets}" 
+                                th:value="${ticket.id}" 
+                                th:text="'Билет #' + ${ticket.id} + ' - ' + ${ticket.price} + ' ₽ (' + 
+                                        (${ticket.status == 'available'} ? 'Доступен' : 
+                                         (${ticket.status == 'sold'} ? 'ПРОДАН' : 'В КОРЗИНЕ')) + ')'"
+                                th:disabled="${ticket.status != 'available' and ticket.id != (order.ticket != null ? order.ticket.getId() : -1)}"
+                                th:selected="${ticket.id == (order.ticket != null ? order.ticket.getId() : -1)}"></option>
+                    </select>
+                    
+                    <!-- ИСПРАВЛЕННОЕ условие проверки доступных билетов -->
+                    <div th:if="${availableTicketsCount == 0}" class="alert-warning">
+                        ⚠️ Нет доступных билетов для изменения заказа
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="employeeId">ID продавца *</label>
+                    <select id="employeeId" name="employeeId" required>
+                        <option th:each="employee : ${employees}" 
+                                th:value="${employee.id}" 
+                                th:text="'ID: ' + ${employee.id}"
+                                th:selected="${employee.id == (order.employee != null ? order.employee.getId() : -1)}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paymentMethod">Способ оплаты *</label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                            <option value="card" th:selected="${order.paymentMethod == 'card'}">Карта</option>
+                            <option value="cash" th:selected="${order.paymentMethod == 'cash'}">Наличные</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="totalAmount">Сумма (₽) *</label>
+                        <input type="number" id="totalAmount" name="totalAmount" step="100" th:value="${order.totalAmount}" required>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin/orders" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

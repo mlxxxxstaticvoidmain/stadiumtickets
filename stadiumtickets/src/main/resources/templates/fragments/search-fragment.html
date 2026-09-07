@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:fragment="search-bar(entityName, searchUrl, listUrl)">
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: #333;">🔍 Поиск</h3>
+            
+            <form method="get" th:action="${searchUrl}" style="margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" name="search" placeholder="Поиск по названию..." 
+                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;"
+                           th:value="${search}">
+                    <button type="submit" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🔍 Поиск
+                    </button>
+                    <a th:href="${listUrl}" style="padding: 10px 20px; background: #666; color: white; text-decoration: none; border-radius: 5px;">
+                        Сбросить
+                    </a>
+                </div>
+            </form>
+            
+            <form method="get" th:action="${searchUrl + '/id'}" style="margin-bottom: 0;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="number" name="id" placeholder="Поиск по ID..." 
+                           style="flex: 0.3; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                    <button type="submit" style="padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🔍 Найти по ID
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

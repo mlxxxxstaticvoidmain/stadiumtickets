@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать место</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .content { padding: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #666;
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Редактирование места</h1>
+            <p>Измените информацию о месте</p>
+        </div>
+        <div class="content">
+            <div class="info-box">
+                <strong>ID места:</strong> <span th:text="${seat.id}"></span>
+                <br>
+                <strong>Текущее место:</strong> <span th:text="${seat.fullSeatInfo}"></span>
+            </div>
+            
+            <form action="/admin/seats/edit" method="post">
+                <input type="hidden" name="id" th:value="${seat.id}">
+                
+                <div class="form-group">
+                    <label for="sectorId">Сектор *</label>
+                    <select id="sectorId" name="sectorId" required>
+                        <option th:each="sector : ${sectors}" 
+                                th:value="${sector.id}" 
+                                th:text="${sector.sectorName} + ' (' + ${sector.venueName} + ')'"
+                                th:selected="${seat.sector != null && sector.id == seat.sector.id}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rowNumber">Ряд *</label>
+                        <input type="number" id="rowNumber" name="rowNumber" th:value="${seat.rowNumber}" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="seatNumber">Номер места *</label>
+                        <input type="number" id="seatNumber" name="seatNumber" th:value="${seat.seatNumber}" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin/seats" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение роли</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .user-info { background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .user-info p { margin: 5px 0; color: #555; }
+        .user-info strong { color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .buttons { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-save { background: #4CAF50; color: white; }
+        .btn-save:hover { background: #45a049; }
+        .btn-cancel { background: #666; color: white; }
+        .btn-cancel:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Изменение роли пользователя</h1>
+
+        <div class="user-info">
+            <p><strong>Логин:</strong> <span th:text="${account.username}"></span></p>
+            <p><strong>Имя:</strong> <span th:text="${account.firstName}"></span> <span th:text="${account.lastName}"></span></p>
+            <p><strong>Email:</strong> <span th:text="${account.email}"></span></p>
+            <p><strong>Текущая роль:</strong> <span th:text="${account.role != null ? account.role.name : 'Не задана'}"></span></p>
+        </div>
+
+        <form th:action="'/admin/user-roles/' + ${account.id} + '/edit'" method="post">
+            <div class="form-group">
+                <label for="roleId">Новая роль</label>
+                <select id="roleId" name="roleId" required>
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"
+                            th:selected="${account.role != null and account.role.id == role.id}"></option>
+                </select>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="btn btn-save">Сохранить</button>
+                <a href="/admin/user-roles" class="btn btn-cancel">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

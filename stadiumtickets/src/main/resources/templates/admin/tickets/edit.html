@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать билет</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Редактирование билета</h1>
+            <p>Измените информацию о билете</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <strong>ID билета:</strong> <span th:text="${ticket.id}"></span>
+            </div>
+            
+            <form th:action="@{/admin/tickets/edit}" method="post">
+                <input type="hidden" name="id" th:value="${ticket.id}">
+                
+                <div class="form-group">
+                    <label for="event">Мероприятие *</label>
+                    <select id="eventId" name="eventId" required>
+                        <option value="">Выберите мероприятие</option>
+                        <option th:each="e : ${events}" th:value="${e.id}" th:text="${e.title}" th:selected="${ticket.event != null && ticket.event.id == e.id}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="seat">Место *</label>
+                    <select id="seatId" name="seatId" required>
+                        <option value="">Выберите место</option>
+                        <option th:each="s : ${seats}" th:value="${s.id}" th:text="${s.sectorName + ', ряд ' + s.rowNumber + ', место ' + s.seatNumber}" th:selected="${ticket.seat != null && ticket.seat.id == s.id}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">Цена (₽) *</label>
+                    <input type="number" id="price" name="price" th:value="${ticket.price}" step="100" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Статус *</label>
+                        <select id="status" name="status" required>
+                            <option value="available" th:selected="${ticket.status == 'available'}">Доступен</option>
+                            <option value="sold" th:selected="${ticket.status == 'sold'}">Продан</option>
+                            <option value="reserved" th:selected="${ticket.status == 'reserved'}">Зарезервирован</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vipAccess">VIP доступ</label>
+                        <select id="vipAccess" name="vipAccess">
+                            <option value="false" th:selected="${!ticket.vipAccess}">Нет</option>
+                            <option value="true" th:selected="${ticket.vipAccess}">Да</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin/tickets" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

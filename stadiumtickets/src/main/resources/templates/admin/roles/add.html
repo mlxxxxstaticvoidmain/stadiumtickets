@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить роль</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .content { padding: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #607D8B;
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #607D8B, #455A64);
+            color: white;
+        }
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .permissions-hint {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .permissions-hint p {
+            font-size: 12px;
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Добавление роли</h1>
+            <p>Введите название роли и права доступа</p>
+        </div>
+        <div class="content">
+            <div class="permissions-hint">
+                <p><strong>Доступные права:</strong></p>
+                <p>• view_events - просмотр мероприятий</p>
+                <p>• edit_events - редактирование мероприятий</p>
+                <p>• delete_events - удаление мероприятий</p>
+                <p>• view_tickets - просмотр билетов</p>
+                <p>• edit_tickets - редактирование билетов</p>
+                <p>• buy_tickets - покупка билетов</p>
+                <p>• view_orders - просмотр заказов</p>
+                <p>• edit_orders - редактирование заказов</p>
+                <p>• manage_users - управление пользователями</p>
+                <p>• all - полный доступ</p>
+                <p><em>Укажите права через запятую (например: view_events,view_tickets)</em></p>
+            </div>
+            
+            <form action="/admin/roles/add" method="post">
+                <div class="form-group">
+                    <label for="name">Название роли *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="permissions">Права доступа</label>
+                    <textarea id="permissions" name="permissions" placeholder="view_events,view_tickets,buy_tickets"></textarea>
+                    <div class="info-text">Оставьте пустым, если права не требуются</div>
+                </div>
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin/roles" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

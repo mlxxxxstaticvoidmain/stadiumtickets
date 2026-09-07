@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:fragment="header">
+        <header>
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Стадион<span class="logo-part">Билеты</span></span>
+                </div>
+                
+                <nav>
+                    <a href="/" class="active">Главная</a>
+                    <a href="/events">Мероприятия</a>
+                    <a href="#">Расписание</a>
+                    <a href="#">Цены</a>
+                    <a href="#">Контакты</a>
+                </nav>
+                
+                <div class="user-menu">
+                    <div sec:authorize="isAuthenticated()">
+                        <span style="color: white; margin-right: 10px;">
+                            <i class="fas fa-user"></i> <span sec:authentication="name">Username</span>
+                        </span>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="login-btn" style="background: #e74c3c; border: none; cursor: pointer;">Выйти</button>
+                        </form>
+                    </div>
+                    <div sec:authorize="!isAuthenticated()">
+                        <a href="/login" class="login-btn">Войти</a>
+                        <a href="/register" class="login-btn" style="background: #4CAF50;">Регистрация</a>
+                    </div>
+                    <a href="#" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+    </div>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить аккаунт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Добавление аккаунта</h1>
+            <p>Заполните информацию о пользователе</p>
+        </div>
+        
+        <div class="content">
+            <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+            
+            <form th:action="@{/admin/accounts/add}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Логин *</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Пароль *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Имя *</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Фамилия *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="middleName">Отчество</label>
+                    <input type="text" id="middleName" name="middleName">
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Телефон *</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="79101234567" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="roleId">Роль *</label>
+                    <select id="roleId" name="roleId" required>
+                        <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="bankGroup">
+                    <label for="bankName">Банк (для сотрудников)</label>
+                    <select id="bankName" name="bankName">
+                        <option value="">Выберите банк</option>
+                        <option th:each="bank : ${banks}" th:value="${bank.bankName}" th:text="${bank.bankName}"></option>
+                    </select>
+                    <div class="error-message" style="font-size: 12px; color: #666; margin-top: 5px;">
+                        * Обязательно для ролей: Администратор, Менеджер, Продавец
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin/accounts" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function toggleBankField() {
+            var roleSelect = document.getElementById('roleId');
+            var bankGroup = document.getElementById('bankGroup');
+            if (roleSelect && roleSelect.options[roleSelect.selectedIndex]) {
+                var selectedRole = roleSelect.options[roleSelect.selectedIndex].text;
+                if (selectedRole === 'Администратор' || selectedRole === 'Менеджер' || selectedRole === 'Продавец') {
+                    bankGroup.style.display = 'block';
+                } else {
+                    bankGroup.style.display = 'none';
+                    var bankName = document.getElementById('bankName');
+                    if (bankName) bankName.value = '';
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var roleSelect = document.getElementById('roleId');
+            if (roleSelect) {
+                roleSelect.addEventListener('change', toggleBankField);
+                toggleBankField();
+            }
+        });
+    </script>
+</body>
+</html>
