@@ -25,10 +25,12 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Пользователь обязателен")
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
     
+    @NotNull(message = "Билет обязателен")
     @OneToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;

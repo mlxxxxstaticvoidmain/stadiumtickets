@@ -25,6 +25,7 @@ public class Sector {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Стадион обязателен")
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;

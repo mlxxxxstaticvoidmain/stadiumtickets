@@ -39,6 +39,9 @@ public class AccountApiController {
     }
 
     @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех учетных записей")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список пользователей получен")
+    })
     @GetMapping
     public ResponseEntity<List<Account>> getAll() {
         return ResponseEntity.ok(repository.findAll());
@@ -61,11 +64,24 @@ public class AccountApiController {
     }
 
     @Operation(summary = "Создать пользователя", description = "Добавляет нового пользователя в систему")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь создан"),
+        @ApiResponse(responseCode = "400", description = "Логин, email или телефон уже заняты",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Account account) {
         if (repository.existsByUsername(account.getUsername())) {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse(400, "Логин уже занят"));
+        }
+        if (repository.existsByEmail(account.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Email уже используется"));
+        }
+        if (repository.findByPhoneNumber(account.getPhoneNumber()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Номер телефона уже используется"));
         }
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         account.setActive(true);
@@ -73,11 +89,33 @@ public class AccountApiController {
     }
 
     @Operation(summary = "Обновить пользователя", description = "Обновляет данные существующего пользователя")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь обновлен"),
+        @ApiResponse(responseCode = "400", description = "Логин, email или телефон уже заняты",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Пользователь не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Account accountData) {
         Account account = repository.findById(id).orElse(null);
         if (account == null) {
             return ResponseEntity.notFound().build();
+        }
+        Account byUsername = repository.findByUsername(accountData.getUsername()).orElse(null);
+        if (byUsername != null && byUsername.getId() != id) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Логин уже занят"));
+        }
+        Account byEmail = repository.findByEmail(accountData.getEmail()).orElse(null);
+        if (byEmail != null && byEmail.getId() != id) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Email уже используется"));
+        }
+        Account byPhone = repository.findByPhoneNumber(accountData.getPhoneNumber()).orElse(null);
+        if (byPhone != null && byPhone.getId() != id) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Номер телефона уже используется"));
         }
         account.setUsername(accountData.getUsername());
         account.setEmail(accountData.getEmail());
@@ -94,6 +132,11 @@ public class AccountApiController {
     }
 
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя из системы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Пользователь удален"),
+        @ApiResponse(responseCode = "404", description = "Пользователь не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if (!repository.existsById(id)) {

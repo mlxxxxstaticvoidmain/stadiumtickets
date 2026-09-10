@@ -29,10 +29,12 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Банк обязателен")
     @ManyToOne
     @JoinColumn(name = "bank_id", nullable = false)
     private Bank bank;
     
+    @NotNull(message = "Аккаунт обязателен")
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false, unique = true)
     private Account account;

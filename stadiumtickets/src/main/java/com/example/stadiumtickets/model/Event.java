@@ -30,10 +30,12 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Стадион обязателен")
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
     
+    @NotNull(message = "Тип игры обязателен")
     @ManyToOne
     @JoinColumn(name = "gametype_id", nullable = false)
     private Gametype gametype;

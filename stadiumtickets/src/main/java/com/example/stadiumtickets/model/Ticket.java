@@ -28,10 +28,12 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Событие обязательно")
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     
+    @NotNull(message = "Место обязательно")
     @ManyToOne
     @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;

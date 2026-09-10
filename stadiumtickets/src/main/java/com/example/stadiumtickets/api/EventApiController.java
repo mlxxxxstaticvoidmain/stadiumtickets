@@ -12,10 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.stadiumtickets.dto.ErrorResponse;
 import com.example.stadiumtickets.model.Event;
 import com.example.stadiumtickets.repository.EventRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -31,12 +36,20 @@ public class EventApiController {
     }
 
     @Operation(summary = "Получить все события", description = "Возвращает список всех событий/матчей")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список событий получен")
+    })
     @GetMapping
     public ResponseEntity<List<Event>> getAll() {
         return ResponseEntity.ok(repository.findAll());
     }
 
     @Operation(summary = "Получить событие по ID", description = "Возвращает данные события по идентификатору")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Событие найдено"),
+        @ApiResponse(responseCode = "404", description = "Событие не найдено",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable int id) {
         Event event = repository.findById(id).orElse(null);
@@ -45,12 +58,24 @@ public class EventApiController {
     }
 
     @Operation(summary = "Создать событие", description = "Добавляет новое событие/матч")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Событие создано"),
+        @ApiResponse(responseCode = "400", description = "Ошибка валидации или неверная ссылка на стадион/тип игры",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<Event> create(@Valid @RequestBody Event event) {
         return ResponseEntity.ok(repository.save(event));
     }
 
     @Operation(summary = "Обновить событие", description = "Обновляет данные существующего события")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Событие обновлено"),
+        @ApiResponse(responseCode = "400", description = "Ошибка валидации данных",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Событие не найдено",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Event eventData) {
         Event event = repository.findById(id).orElse(null);
@@ -64,6 +89,11 @@ public class EventApiController {
     }
 
     @Operation(summary = "Удалить событие", description = "Удаляет событие из системы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Событие удалено"),
+        @ApiResponse(responseCode = "404", description = "Событие не найдено",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
@@ -72,6 +102,9 @@ public class EventApiController {
     }
 
     @Operation(summary = "Получить события по стадиону", description = "Возвращает события для указанного стадиона")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список событий получен")
+    })
     @GetMapping("/by-venue/{venueId}")
     public ResponseEntity<List<Event>> getByVenueId(@PathVariable int venueId) {
         return ResponseEntity.ok(repository.findByVenueId(venueId));

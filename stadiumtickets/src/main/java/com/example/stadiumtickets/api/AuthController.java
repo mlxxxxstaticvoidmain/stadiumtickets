@@ -63,6 +63,10 @@ public class AuthController {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse(400, "Email уже используется"));
         }
+        if (accountRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Номер телефона уже используется"));
+        }
 
         Role userRole = roleRepository.findByName("Пользователь")
             .orElseGet(() -> roleRepository.save(new Role(0, "Пользователь", "browse,cart,myevents")));

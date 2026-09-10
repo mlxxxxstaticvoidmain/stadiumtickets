@@ -25,16 +25,18 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Пользователь обязателен")
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
     
+    @NotNull(message = "Билет обязателен")
     @ManyToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;
     
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
     
     @PastOrPresent(message = "Дата заказа не может быть в будущем")

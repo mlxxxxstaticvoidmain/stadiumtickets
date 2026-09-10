@@ -40,12 +40,20 @@ public class CartApiController {
     }
 
     @Operation(summary = "Получить все корзины", description = "Возвращает список всех элементов корзин")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список элементов корзин получен")
+    })
     @GetMapping
     public ResponseEntity<List<Cart>> getAll() {
         return ResponseEntity.ok(repository.findAll());
     }
 
     @Operation(summary = "Получить элемент корзины по ID", description = "Возвращает данные элемента корзины по идентификатору")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Элемент корзины найден"),
+        @ApiResponse(responseCode = "404", description = "Элемент корзины не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable int id) {
         Cart cart = repository.findById(id).orElse(null);
@@ -82,6 +90,13 @@ public class CartApiController {
     }
 
     @Operation(summary = "Обновить элемент корзины", description = "Обновляет пользователя, которому принадлежит элемент корзины")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Элемент корзины обновлен"),
+        @ApiResponse(responseCode = "400", description = "Ошибка валидации данных",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Элемент корзины не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Cart cartData) {
         Cart cart = repository.findById(id).orElse(null);
@@ -91,6 +106,11 @@ public class CartApiController {
     }
 
     @Operation(summary = "Удалить элемент корзины", description = "Удаляет элемент корзины и возвращает билет в статус 'available'")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Элемент корзины удален"),
+        @ApiResponse(responseCode = "404", description = "Элемент корзины не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         Cart cart = repository.findById(id).orElse(null);
@@ -105,6 +125,9 @@ public class CartApiController {
     }
 
     @Operation(summary = "Получить корзину пользователя", description = "Возвращает элементы корзины для указанного пользователя")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список элементов корзины получен")
+    })
     @GetMapping("/by-account/{accountId}")
     public ResponseEntity<List<Cart>> getByAccountId(@PathVariable int accountId) {
         return ResponseEntity.ok(repository.findByAccountId(accountId));

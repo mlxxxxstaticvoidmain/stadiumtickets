@@ -36,6 +36,9 @@ public class RoleApiController {
     }
 
     @Operation(summary = "Получить все роли", description = "Возвращает список всех ролей в системе")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список ролей получен")
+    })
     @GetMapping
     public ResponseEntity<List<Role>> getAll() {
         return ResponseEntity.ok(repository.findAll());
@@ -57,17 +60,38 @@ public class RoleApiController {
     }
 
     @Operation(summary = "Создать новую роль", description = "Добавляет новую роль в систему")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Роль создана"),
+        @ApiResponse(responseCode = "400", description = "Роль с таким названием уже существует",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
-    public ResponseEntity<Role> create(@Valid @RequestBody Role role) {
+    public ResponseEntity<?> create(@Valid @RequestBody Role role) {
+        if (repository.findByName(role.getName()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Роль с таким названием уже существует"));
+        }
         return ResponseEntity.ok(repository.save(role));
     }
 
     @Operation(summary = "Обновить роль", description = "Обновляет данные существующей роли")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Роль обновлена"),
+        @ApiResponse(responseCode = "400", description = "Роль с таким названием уже существует",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Роль не найдена",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Role roleData) {
         Role role = repository.findById(id).orElse(null);
         if (role == null) {
             return ResponseEntity.notFound().build();
+        }
+        Role byName = repository.findByName(roleData.getName()).orElse(null);
+        if (byName != null && byName.getId() != id) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Роль с таким названием уже существует"));
         }
         role.setName(roleData.getName());
         role.setPermissions(roleData.getPermissions());
@@ -75,6 +99,11 @@ public class RoleApiController {
     }
 
     @Operation(summary = "Удалить роль", description = "Удаляет роль из системы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Роль удалена"),
+        @ApiResponse(responseCode = "404", description = "Роль не найдена",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if (!repository.existsById(id)) {

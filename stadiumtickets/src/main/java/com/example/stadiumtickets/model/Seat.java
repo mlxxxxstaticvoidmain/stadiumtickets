@@ -27,6 +27,7 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
+    @NotNull(message = "Сектор обязателен")
     @ManyToOne
     @JoinColumn(name = "sector_id", nullable = false)
     private Sector sector;

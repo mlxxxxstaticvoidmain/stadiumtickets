@@ -12,10 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.stadiumtickets.dto.ErrorResponse;
 import com.example.stadiumtickets.model.Sector;
 import com.example.stadiumtickets.repository.SectorRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -31,12 +36,20 @@ public class SectorApiController {
     }
 
     @Operation(summary = "Получить все секторы", description = "Возвращает список всех секторов")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список секторов получен")
+    })
     @GetMapping
     public ResponseEntity<List<Sector>> getAll() {
         return ResponseEntity.ok(repository.findAll());
     }
 
     @Operation(summary = "Получить сектор по ID", description = "Возвращает данные сектора по идентификатору")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Сектор найден"),
+        @ApiResponse(responseCode = "404", description = "Сектор не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable int id) {
         Sector sector = repository.findById(id).orElse(null);
@@ -45,12 +58,24 @@ public class SectorApiController {
     }
 
     @Operation(summary = "Создать сектор", description = "Добавляет новый сектор для стадиона")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Сектор создан"),
+        @ApiResponse(responseCode = "400", description = "Ошибка валидации данных",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<Sector> create(@Valid @RequestBody Sector sector) {
         return ResponseEntity.ok(repository.save(sector));
     }
 
     @Operation(summary = "Обновить сектор", description = "Обновляет данные существующего сектора")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Сектор обновлен"),
+        @ApiResponse(responseCode = "400", description = "Ошибка валидации данных",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Сектор не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Sector sectorData) {
         Sector sector = repository.findById(id).orElse(null);
@@ -62,6 +87,11 @@ public class SectorApiController {
     }
 
     @Operation(summary = "Удалить сектор", description = "Удаляет сектор из системы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Сектор удален"),
+        @ApiResponse(responseCode = "404", description = "Сектор не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
@@ -70,6 +100,9 @@ public class SectorApiController {
     }
 
     @Operation(summary = "Получить секторы по стадиону", description = "Возвращает секторы для указанного стадиона")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список секторов получен")
+    })
     @GetMapping("/by-venue/{venueId}")
     public ResponseEntity<List<Sector>> getByVenueId(@PathVariable int venueId) {
         return ResponseEntity.ok(repository.findByVenueId(venueId));

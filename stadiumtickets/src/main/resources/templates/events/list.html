@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Афиша мероприятий — СтадионБилеты</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: #1a237e;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #4caf50, #2196f3);
+            margin: 15px auto 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: #f5f7fa;
+            border-radius: 12px;
+            font-size: 18px;
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .event-img {
+            background: #e8eaf6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Стадион<span class="logo-part">Билеты</span></span>
+            </div>
+
+            <nav>
+                <a href="/">Главная</a>
+                <a href="/myevents" class="active">Мероприятия</a>
+                <a href="#">Расписание</a>
+                <a href="#">Цены</a>
+                <a href="#">Контакты</a>
+                <a href="/admin" sec:authorize="hasAnyAuthority('Администратор', 'Менеджер')">Админ панель</a>
+            </nav>
+
+            <div class="user-menu">
+                <div sec:authorize="isAuthenticated()">
+                    <span style="color: white; margin-right: 10px;">
+                        <i class="fas fa-user"></i> <span sec:authentication="name">Username</span>
+                    </span>
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="login-btn" style="background: #e74c3c; border: none; cursor: pointer;">Выйти</button>
+                    </form>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="login-btn">Войти</a>
+                    <a href="/register" class="login-btn" style="background: #4CAF50;">Регистрация</a>
+                </div>
+                <a href="/cart" class="cart-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="events">
+        <div class="container">
+            <h2 class="page-title">Афиша мероприятий</h2>
+
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+            <div class="empty-state" th:if="${events == null or events.isEmpty()}">
+                <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 15px; display: block; color: #9e9e9e;"></i>
+                Пока нет запланированных мероприятий
+            </div>
+
+            <div class="events-grid" th:unless="${events == null or events.isEmpty()}">
+                <div class="event-card" th:each="event : ${events}">
+                    <div class="event-img">
+                        <img th:src="${event.gametype != null and #strings.containsIgnoreCase(event.gametype.tournamentName, 'футбол')
+                                        ? '/images/347593542490500.jpg'
+                                        : (event.gametype != null and #strings.containsIgnoreCase(event.gametype.tournamentName, 'концерт')
+                                            ? '/images/images.jpg'
+                                            : '/images/legkaya-atletika.jpg')}"
+                             alt="Мероприятие">
+                        <span class="event-badge"
+                              th:text="${event.gametype != null ? event.gametype.tournamentName : 'Событие'}">Событие</span>
+                    </div>
+                    <div class="event-info">
+                        <h3 th:text="${event.title}">Название мероприятия</h3>
+                        <p>
+                            <i class="far fa-calendar"></i>
+                            <span th:text="${event.eventDate != null ? #temporals.format(event.eventDate, 'dd.MM.yyyy') : '—'}">01.01.2026</span>
+                        </p>
+                        <p>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span th:text="${event.venue != null ? event.venue.nameVenue : 'Стадион'}">Стадион</span>
+                        </p>
+                        <p th:if="${event.venue != null}">
+                            <i class="fas fa-location-arrow"></i>
+                            <span th:text="${event.venue.address}">Адрес</span>
+                        </p>
+                        <div class="event-footer">
+                            <div class="price" th:text="${event.price} + ' ₽'">0 ₽</div>
+                            <a th:href="@{/myevents/{id}(id=${event.id})}" class="buy-btn">
+                                <i class="fas fa-chair"></i> Выбрать места
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo footer-logo">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Стадион<span class="logo-part">Билеты</span></span>
+                    </div>
+                    <p>Продажа билетов на все мероприятия стадиона</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p><i class="fas fa-phone"></i> +7 (800) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@stadium.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Спортивная, 1</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Часы работы</h4>
+                    <p>Пн-Пт: 9:00-21:00</p>
+                    <p>Сб-Вс: 10:00-20:00</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2024 СтадионБилеты. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -37,6 +37,9 @@ public class BankApiController {
     }
 
     @Operation(summary = "Получить все банки", description = "Возвращает список всех банков")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список банков получен")
+    })
     @GetMapping
     public ResponseEntity<List<Bank>> getAll() {
         return ResponseEntity.ok(repository.findAll());
@@ -56,6 +59,11 @@ public class BankApiController {
     }
 
     @Operation(summary = "Получить банк по названию", description = "Возвращает банк с указанным названием")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Банк найден"),
+        @ApiResponse(responseCode = "404", description = "Банк не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/by-name")
     public ResponseEntity<?> getByName(@RequestParam String bankName) {
         Bank bank = repository.findByBankName(bankName).orElse(null);
@@ -64,21 +72,47 @@ public class BankApiController {
     }
 
     @Operation(summary = "Создать банк", description = "Добавляет новый банк в систему")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Банк создан"),
+        @ApiResponse(responseCode = "400", description = "Банк с таким названием уже существует",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
-    public ResponseEntity<Bank> create(@Valid @RequestBody Bank bank) {
+    public ResponseEntity<?> create(@Valid @RequestBody Bank bank) {
+        if (repository.findByBankName(bank.getBankName()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Банк с таким названием уже существует"));
+        }
         return ResponseEntity.ok(repository.save(bank));
     }
 
     @Operation(summary = "Обновить банк", description = "Обновляет данные существующего банка")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Банк обновлен"),
+        @ApiResponse(responseCode = "400", description = "Банк с таким названием уже существует",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Банк не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody Bank bankData) {
         Bank bank = repository.findById(id).orElse(null);
         if (bank == null) return ResponseEntity.notFound().build();
+        Bank byName = repository.findByBankName(bankData.getBankName()).orElse(null);
+        if (byName != null && byName.getId() != id) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(400, "Банк с таким названием уже существует"));
+        }
         bank.setBankName(bankData.getBankName());
         return ResponseEntity.ok(repository.save(bank));
     }
 
     @Operation(summary = "Удалить банк", description = "Удаляет банк из системы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Банк удален"),
+        @ApiResponse(responseCode = "404", description = "Банк не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
