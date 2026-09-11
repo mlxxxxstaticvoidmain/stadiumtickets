@@ -270,6 +270,11 @@
     </style>
 </head>
 <body>
+    <script>
+        function confirmSeat(btn) {
+            return confirm(btn.getAttribute('data-tooltip') + ' — купить?');
+        }
+    </script>
     <header>
         <div class="container">
             <div class="logo">
@@ -382,7 +387,8 @@
                                         th:classappend="${cell.cssClass}"
                                         th:disabled="${!cell.available}"
                                         th:title="${cell.tooltip}"
-                                        th:onclick="|return confirm('${cell.tooltip} — купить?')|"
+                                        th:attr="data-tooltip=${cell.tooltip}"
+                                        th:onclick="'return confirmSeat(this);'"
                                         th:text="${cell.seat.seatNumber}">1</button>
                             </form>
                         </div>
@@ -410,7 +416,8 @@
                                         th:classappend="${cell.cssClass}"
                                         th:disabled="${!cell.available}"
                                         th:title="${cell.tooltip}"
-                                        th:onclick="|return confirm('${cell.tooltip} — купить?')|"
+                                        th:attr="data-tooltip=${cell.tooltip}"
+                                        th:onclick="'return confirmSeat(this);'"
                                         th:text="${cell.seat.seatNumber}">1</button>
                             </form>
                         </div>
