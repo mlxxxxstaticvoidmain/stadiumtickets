@@ -129,7 +129,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="venue">Площадка *</label>
-                        <select id="venueId" name="venueId" required>
+                        <select id="venue" th:field="*{venue}" required>
                             <option value="">Выберите площадку</option>
                             <option th:each="v : ${venues}" th:value="${v.id}" th:text="${v.nameVenue}"></option>
                         </select>
@@ -141,7 +141,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="gametype">Тип турнира *</label>
-                        <select id="gametypeId" name="gametypeId" required>
+                        <select id="gametype" th:field="*{gametype}" required>
                             <option value="">Выберите тип турнира</option>
                             <option th:each="g : ${gametypes}" th:value="${g.id}" th:text="${g.tournamentName}"></option>
                         </select>

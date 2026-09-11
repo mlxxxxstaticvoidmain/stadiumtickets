@@ -148,11 +148,6 @@
                             <option th:each="g : ${gametypes}" th:value="${g.id}" th:text="${g.tournamentName}"></option>
                         </select>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="gametypeId">ID типа игры *</label>
-                        <input type="number" id="gametypeId" name="gametypeId" th:value="${event.gametypeId}" required>
-                    </div>
                 </div>
                 
                 <div class="form-row">
